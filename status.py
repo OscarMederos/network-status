@@ -1,8 +1,11 @@
+from email.headerregistry import HeaderRegistry
 import os
 import sys
 import socket
 import datetime
 import time
+import flask
+from flask import request, jsonify
  
  
 FILE = os.path.join(os.getcwd(), "networkinfo.log")
@@ -163,4 +166,23 @@ def main():
                 file.write(uptime_message + "\n")
                 file.write(unavailablity_time + "\n")
  
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return "<h1>404</h1><p>The resource could not be found.</p>", 404
+
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>Network status 1.0</h1>
+<p>A prototype API for network status</p>'''
+
+@app.route('/api/v1/networkinfo', methods=['GET'])
+def api_all():
+    with open('networkinfo.log','r') as file:
+        networkinfo = file.read()
+    return (networkinfo)
+
+app.run()
 main()
